@@ -86,7 +86,10 @@ if __name__ == "__main__":
     _LOGGER.info("Browser Fix Script started.")
     # Delete cookies & cache from Google Chrome
     bot.delete_cookies_cache()
+    print("cookies deleted")
     # Check the browser version is up-to-date
     browser_check = bot.check_for_browser_update()
+    print("browser version checked")
     # Send notification to user to try a new browser or to update browser if out of date
+    print("browser_check", browser_check)
     bot.try_alternative_browser(browser_check)
