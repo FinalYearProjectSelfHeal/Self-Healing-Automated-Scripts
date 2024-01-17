@@ -1,3 +1,4 @@
+import subprocess
 import time, logging, psutil, requests
 import undetected_chromedriver as webdriver
 from selenium.webdriver.common.action_chains import ActionChains
@@ -17,11 +18,32 @@ class BrowserFix:
         self.osquery_agent = OSQueryAgent()
         self.notification = Notification()
 
+
+    def close_browser(self):
+        print("closing browser")
+        self.notification.create_notification_2("Google Chrome will close in 1 minute to run self-heal script. Please save your current work.", None)
+        time.sleep(60)
+
+        # Execute AppleScript to close Chrome
+        script = 'tell application "Google Chrome" to close (every window whose visible is true)'
+        subprocess.run(["osascript", "-e", script])
+
+        # Give some time for Chrome to close before quitting
+        time.sleep(2)
+
+        # Execute AppleScript to quit Chrome
+        script = 'tell application "Google Chrome" to quit'
+        subprocess.run(["osascript", "-e", script])
+        self.check_browser_not_running()
+
     def check_browser_not_running(self):
+        chrome_running = False
         for proc in psutil.process_iter(['pid', 'name']):
-            print("process name", proc.name())
             if proc.name() == self.browser:
-                return True
+                chrome_running = True
+
+        if chrome_running:
+            self.close_browser()
 
         return False
 
@@ -37,6 +59,7 @@ class BrowserFix:
         print(browser_running, "check")
 
         if not browser_running:
+            print("does this run")
             user_data_dir = r"/Users/sunilsamra/Library/Application Support/Google/Chrome/Profile 2"
 
             self.options.add_argument(f"user-data-dir={user_data_dir}")
@@ -76,9 +99,9 @@ class BrowserFix:
     def try_alternative_browser(self, browser_updated):
         """I can crash chrome - now I need to be able to see what crashed chrome and try it in another browser"""
         if browser_updated:
-            self.notification.create_notification_2("We have cleared your cache & cookies in Google Chrome. \nYour browser version is up to date.\nIf problems persist, please try a new browser.", False)
+            self.notification.create_notification_2("We have cleared your cache & cookies in Chrome. Your browser version is up to date.If problems persist, please try a new browser.", False)
         else:
-            self.notification.create_notification_2("We have cleared your cache & cookies in Google Chrome.\n Your browser version is out of date and may be the cause problems of websites not being able to load.\nPlease update your browser.", False)
+            self.notification.create_notification_2("We have cleared your cache & cookies in Chrome.Your browser version is out of date. Please update your browser.", False)
 
 
 if __name__ == "__main__":
@@ -86,10 +109,10 @@ if __name__ == "__main__":
     _LOGGER.info("Browser Fix Script started.")
     # Delete cookies & cache from Google Chrome
     bot.delete_cookies_cache()
-    print("cookies deleted")
+    print("Cookies have been deleted")
     # Check the browser version is up-to-date
     browser_check = bot.check_for_browser_update()
-    print("browser version checked")
+    print("Browser version checked")
     # Send notification to user to try a new browser or to update browser if out of date
     print("browser_check", browser_check)
     bot.try_alternative_browser(browser_check)
