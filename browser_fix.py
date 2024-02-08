@@ -1,23 +1,29 @@
+import os, platform
 import subprocess
 import time, logging, psutil, requests
 import undetected_chromedriver as webdriver
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium import webdriver as selenium_webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
 from osquery_agent import OSQueryAgent
 from bs4 import BeautifulSoup as bs
 from notifications import Notification
 
 _LOGGER = logging.getLogger(__name__)
 
+# browser_fix.py
+
+# Compatibility:
+# Google Chrome
+
+# Pre-requisites
+# Google Chrome
+
+
 class BrowserFix:
-    def __init__(self):
+    def __init__(self, browser):
         self.driver = ""
         self.options = webdriver.ChromeOptions()
-        self.browser = "Google Chrome"
+        self.browser = browser
         self.osquery_agent = OSQueryAgent()
         self.notification = Notification()
         self.selenium_webdriver = ""
@@ -25,20 +31,22 @@ class BrowserFix:
 
 
     def close_browser(self):
-        print("closing browser")
-        self.notification.create_notification_2("Google Chrome will close in 1 minute to run self-heal script. Please save your current work.", None)
+        self.notification.create_notification_2(f"{self.browser} will close in 1 minute to run self-heal script. Please save your current work.", None)
         time.sleep(60)
 
         # Execute AppleScript to close Chrome
-        script = 'tell application "Google Chrome" to close (every window whose visible is true)'
+        script = f'tell application {self.browser} to close (every window whose visible is true)'
         subprocess.run(["osascript", "-e", script])
 
         # Give some time for Chrome to close before quitting
         time.sleep(2)
 
         # Execute AppleScript to quit Chrome
-        script = 'tell application "Google Chrome" to quit'
+        script = f'tell application {self.browser} to quit'
         subprocess.run(["osascript", "-e", script])
+
+        time.sleep(2)
+
         self.check_browser_not_running()
 
     def check_browser_not_running(self):
@@ -54,12 +62,11 @@ class BrowserFix:
 
     def delete_cookies_cache(self):
         browser_running = self.check_browser_not_running()
-        print(browser_running, "check")
 
         if not browser_running:
             try:
-                print("does this run")
-                user_data_dir = r"/Users/sunilsamra/Library/Application Support/Google/Chrome/Profile 2"
+                user_path = os.path.expanduser("~")
+                user_data_dir = os.path.join(user_path, "Library/Application Support/Google/Chrome/Profile 2")
 
                 self.options.add_argument(f"user-data-dir={user_data_dir}")
                 self.options.add_argument(r'--profile-directory=Default')
@@ -106,8 +113,8 @@ class BrowserFix:
         browser_version = self.osquery_agent.check_current_browser_version()
 
         if browser_version is not None:
-            chrome_versions_url = "https://www.whatismybrowser.com/guides/the-latest-version/chrome"
-            response = requests.request("GET", chrome_versions_url)
+            versions_url = "https://www.whatismybrowser.com/guides/the-latest-version/chrome"
+            response = requests.request("GET", versions_url)
 
             soup = bs(response.text, 'html.parser')
             rows = soup.select('td strong')
@@ -128,13 +135,13 @@ class BrowserFix:
     def try_alternative_browser(self, browser_updated):
         """I can crash chrome - now I need to be able to see what crashed chrome and try it in another browser"""
         if browser_updated:
-            self.notification.create_notification_2("Cache & cookies in Chrome have been cleared and browser is up to date. You may need try a different browser.", False)
+            self.notification.create_notification_2(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. You could try a different browser.", False)
         else:
-            self.notification.create_notification_2("Cache & cookies in Chrome have been cleared. You need to update Chrome.", False)
+            self.notification.create_notification_2(f"Cache & Cookies in {self.browser} have been cleared. You need to update it.", False)
 
 
 if __name__ == "__main__":
-    bot = BrowserFix()
+    bot = BrowserFix("Google Chrome")
     _LOGGER.info("Browser Fix Script started.")
     # Delete cookies & cache from Google Chrome
     bot.delete_cookies_cache()
