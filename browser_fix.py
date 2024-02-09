@@ -152,3 +152,4 @@ if __name__ == "__main__":
     # Send notification to user to try a new browser or to update browser if out of date
     print("browser_check", browser_check)
     bot.try_alternative_browser(browser_check)
+    # dummy comment
