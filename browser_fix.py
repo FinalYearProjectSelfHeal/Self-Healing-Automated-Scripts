@@ -31,7 +31,7 @@ class BrowserFix:
 
 
     def close_browser(self):
-        self.notification.create_notification_2(f"{self.browser} will close in 1 minute to run self-heal script. Please save your current work.", None)
+        self.notification.create_notification(f"{self.browser} will close in 1 minute to run self-heal script. Please save your current work.", None)
         time.sleep(60)
 
         # Execute AppleScript to close Chrome
@@ -135,9 +135,9 @@ class BrowserFix:
     def try_alternative_browser(self, browser_updated):
         """I can crash chrome - now I need to be able to see what crashed chrome and try it in another browser"""
         if browser_updated:
-            self.notification.create_notification_2(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. You could try a different browser.", False)
+            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. You could try a different browser.", False)
         else:
-            self.notification.create_notification_2(f"Cache & Cookies in {self.browser} have been cleared. You need to update it.", False)
+            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared. You need to update it.", False)
 
 
 if __name__ == "__main__":
