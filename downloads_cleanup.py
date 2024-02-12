@@ -1,5 +1,3 @@
-# Will contain which file is being run to fix client issue
-
 from os import listdir
 from os.path import isfile, join
 from datetime import timedelta, datetime
@@ -7,23 +5,25 @@ import os, shutil, pathlib, logging, time
 from notifications import Notification
 
 folder_names_dict = {
-    "Audio": {'aif', 'cda', 'mid', 'midi', 'mp3', 'mpa', 'ogg', 'wav', 'wma'},
-    "Compressed": {'7z', 'deb', 'pkg', 'rar', 'rpm', 'tar.gz', 'z', 'zip'},
-    'Code': {'js', 'jsp', 'html', 'ipynb', 'py', 'java', 'css'},
-    'Documents': {'ppt', 'pptx', 'pdf', 'xls', 'xlsx', 'doc', 'docx', 'txt', 'tex', 'epub'},
-    'Images': {'bmp', 'gif', 'ico', 'jpeg', 'jpg', 'png', 'jfif', 'svg', 'tif', 'tiff'},
-    'Installers': {'dmg', 'app'},
-    'Softwares': {'apk', 'bat', 'bin', 'exe', 'jar', 'msi', 'py', 'drawio', 'run'},
-    'Videos': {'3gp', 'avi', 'flv', 'h264', 'mkv', 'mov', 'mp4', 'mpg', 'mpeg', 'wmv'},
+    "Audio": {'aif', 'cda', 'mid', 'midi', 'mp3', 'mpa', 'ogg', 'wav', 'wma', 'flac', 'aac'},
+    "Compressed": {'7z', 'deb', 'pkg', 'rar', 'rpm', 'tar.gz', 'z', 'zip', 'tar', 'gz'},
+    'Code': {'js', 'jsp', 'html', 'ipynb', 'py', 'java', 'css', 'cpp', 'json', 'xml'},
+    'Documents': {'ppt', 'pptx', 'pdf', 'xls', 'xlsx', 'doc', 'docx', 'txt', 'tex', 'epub', 'csv'},
+    'Images': {'bmp', 'gif', 'ico', 'jpeg', 'jpg', 'png', 'jfif', 'svg', 'tif', 'tiff', 'raw', 'heif'},
+    'Installers': {'dmg', 'app', 'exe', 'bat', 'cmd', 'msi'},
+    'Softwares': {'apk', 'bat', 'bin', 'exe', 'jar', 'msi', 'py', 'drawio', 'run', 'com', 'sys', 'dll'},
+    'Videos': {'3gp', 'avi', 'flv', 'h264', 'mkv', 'mov', 'mp4', 'mpg', 'mpeg', 'wmv', 'svi'},
     'Others': {'NONE'}
 }
 
 notification = Notification()
 
+# Threshold for files which are considered as redundant
+time_delta = timedelta(days=365)
 
 def get_download_path():
     """Retrieves the full path to the Downloads folder on the client machine."""
-    return (pathlib.Path.home() / "Downloads")
+    return pathlib.Path.home() / "Downloads"
 
 
 def extract_files(downloads_path, folder_names):
@@ -83,7 +83,7 @@ def move_files(download_path, files):
                 else:
                     continue
 
-        if found == False:
+        if not found:
             dest_path = str(download_path) + '/Others/' + file
             shutil.move(src_path, dest_path)
 
@@ -126,12 +126,15 @@ def calculate_unused_files(download_path, files):
         unit = "GB"
 
     if wasted_storage > 0:
-        notification.create_notification_2(f"We have found {wasted_storage} {unit} of unused space.The files in your Downloads folder have not been opened in at least {days} days. Delete unused files.",
-                                                delete_files(files_to_delete))
-        time.sleep(15)
-        notification.client.stop_listening_for_callbacks()
+        files_deleted = notification.create_notification(f"There are {wasted_storage} {unit} of files in Downloads that haven't been opened for {days} days. Delete unused files.",
+                                                True)
+        if files_deleted is True:
+            delete_files(files_to_delete)
+            notification.create_notification(f"We have cleaned up the files and saved {wasted_storage} {unit} in your Downloads folder!", False)
+        else:
+            notification.create_notification(f"We have cleaned up the files in your Downloads folder!", False)
     else:
-        notification.create_notification_2(f"We have cleaned up the files in your Downloads folder!", False)
+        notification.create_notification(f"We have cleaned up the files in your Downloads folder!", False)
 
 
 def convert_path_to_string_path(download_path, file):
@@ -155,7 +158,6 @@ def check_file_date_modified(file, download_path):
     today = datetime.today()
     filepath = convert_path_to_string_path(download_path, file)
     last_date_modified = os.path.getmtime(filepath)
-    time_delta = timedelta(days=365)
     expiration_date = today - time_delta
 
     # Convert time (float) from epoch to str time using Time module
