@@ -30,7 +30,7 @@ class GitHubPermissions(object):
 
         response = requests.put(api + username, headers=headers)
         if response.status_code == 201:
-            notify_text = f"We saw your GitHub account was NOT a collaborator for the {self.repo_name} repository and a new request has been sent."
+            notify_text = f"Your GitHub account does NOT have access to {self.repo_name} and a request has been sent."
             self.send_notification(notify_text)
             return True
         elif response.status_code == 404:
@@ -49,7 +49,7 @@ class GitHubPermissions(object):
     def send_notification(self, info_string):
         """Uses Notification object to send notification to client.
         :param info_string: Text to be displayed in the notification pop-up."""
-        self.notifications.create_notification_2(info_string, False)
+        self.notifications.create_notification(info_string, False)
 
 
 if __name__ == "__main__":
