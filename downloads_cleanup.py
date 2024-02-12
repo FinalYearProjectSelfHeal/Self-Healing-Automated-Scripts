@@ -102,7 +102,6 @@ def delete_files(files_to_delete):
 def calculate_unused_files(download_path, files):
     wasted_storage = 0
     files_to_delete = []
-    size = 0
     for file in files:
         expired, days = check_file_date_modified(file, download_path)
         filepath = convert_path_to_string_path(download_path, file)
@@ -126,7 +125,7 @@ def calculate_unused_files(download_path, files):
         unit = "GB"
 
     if wasted_storage > 0:
-        files_deleted = notification.create_notification(f"There are {wasted_storage} {unit} of files in Downloads that haven't been opened for {days} days. Delete unused files.",
+        files_deleted = notification.create_notification(f"There are {wasted_storage} {unit} of files in Downloads that haven't been opened in {days} days. Delete unused files.",
                                                 True)
         if files_deleted is True:
             delete_files(files_to_delete)
@@ -160,7 +159,7 @@ def check_file_date_modified(file, download_path):
     last_date_modified = os.path.getmtime(filepath)
     expiration_date = today - time_delta
 
-    # Convert time (float) from epoch to str time using Time module
+    # Convert time (float) to str time using Time module
     last_date_modified = time.ctime(last_date_modified)
     # Use datetime method to convert str time into datetime object
     format_string = "%a %b %d %H:%M:%S %Y"
