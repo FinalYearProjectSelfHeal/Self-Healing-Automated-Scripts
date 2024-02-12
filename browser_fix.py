@@ -35,14 +35,14 @@ class BrowserFix:
         time.sleep(60)
 
         # Execute AppleScript to close Chrome
-        script = f'tell application {self.browser} to close (every window whose visible is true)'
+        script = f'tell application "{self.browser}" to close (every window whose visible is true)'
         subprocess.run(["osascript", "-e", script])
 
         # Give some time for Chrome to close before quitting
         time.sleep(2)
 
         # Execute AppleScript to quit Chrome
-        script = f'tell application {self.browser} to quit'
+        script = f'tell application "{self.browser}" to quit'
         subprocess.run(["osascript", "-e", script])
 
         time.sleep(2)
@@ -106,6 +106,7 @@ class BrowserFix:
                 clear_data_button.click()
 
             finally:
+                _LOGGER.info("Web Driver has been closed.")
                 self.selenium_webdriver.close()
 
     def check_for_browser_update(self):
@@ -118,7 +119,7 @@ class BrowserFix:
 
             soup = bs(response.text, 'html.parser')
             rows = soup.select('td strong')
-            # Find version or assume it is MAC?
+            # Find version
             latest_version = {'macos': rows[1].parent.next_sibling.next_sibling.text}
             # Web scrape the latest version
             current_version_number = browser_version.split(" ")[2]
@@ -129,7 +130,6 @@ class BrowserFix:
                 _LOGGER.info("Chrome browser up-to-date")
                 return True
             return False
-
         _LOGGER.debug("Unable to find Chrome version")
 
     def try_alternative_browser(self, browser_updated):
@@ -152,4 +152,3 @@ if __name__ == "__main__":
     # Send notification to user to try a new browser or to update browser if out of date
     print("browser_check", browser_check)
     bot.try_alternative_browser(browser_check)
-    # dummy comment
