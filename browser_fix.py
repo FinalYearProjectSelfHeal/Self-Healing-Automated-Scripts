@@ -135,7 +135,7 @@ class BrowserFix:
     def try_alternative_browser(self, browser_updated):
         """I can crash chrome - now I need to be able to see what crashed chrome and try it in another browser"""
         if browser_updated:
-            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. You could try a different browser.", False)
+            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. Please review the website address is correct and try a different browser.", False)
         else:
             self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared. You need to update it.", False)
 
