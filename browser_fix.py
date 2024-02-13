@@ -34,8 +34,9 @@ class BrowserFix:
         self.notification.create_notification(f"{self.browser} will close in 1 minute to run self-heal script. Please save your current work.", False)
         time.sleep(60)
 
+        # to close (every window whose visible is true)
         # Execute AppleScript to close Chrome
-        script = f'tell application "{self.browser}" to close (every window whose visible is true)'
+        script = f'tell application "{self.browser}" to quit'
         subprocess.run(["osascript", "-e", script])
 
         # Give some time for Chrome to close before quitting
