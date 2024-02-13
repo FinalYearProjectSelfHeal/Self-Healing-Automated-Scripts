@@ -31,7 +31,7 @@ class BrowserFix:
 
 
     def close_browser(self):
-        self.notification.create_notification(f"{self.browser} will close in 1 minute to run self-heal script. Please save your current work.", None)
+        self.notification.create_notification(f"{self.browser} will close in 1 minute to run self-heal script. Please save your current work.", False)
         time.sleep(60)
 
         # Execute AppleScript to close Chrome
