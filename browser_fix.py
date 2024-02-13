@@ -42,7 +42,8 @@ class BrowserFix:
         time.sleep(2)
 
         # Execute AppleScript to quit Chrome
-        script = f'tell application "{self.browser}" to quit'
+        # script = f'tell application "{self.browser}" to quit'
+        script = f'tell my application "{self.browser}" to if it is running then quit'
         subprocess.run(["osascript", "-e", script])
 
         time.sleep(2)
@@ -62,6 +63,7 @@ class BrowserFix:
 
     def delete_cookies_cache(self):
         browser_running = self.check_browser_not_running()
+        # browser_running = False
 
         if not browser_running:
             try:
@@ -135,7 +137,7 @@ class BrowserFix:
     def try_alternative_browser(self, browser_updated):
         """I can crash chrome - now I need to be able to see what crashed chrome and try it in another browser"""
         if browser_updated:
-            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. Please review the website address is correct and try a different browser.", False)
+            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. You could try a different browser.", False)
         else:
             self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared. You need to update it.", False)
 
