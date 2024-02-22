@@ -68,6 +68,7 @@ class BrowserFix:
 
         if not browser_running:
             try:
+                print("ENTERED HERE")
                 user_path = os.path.expanduser("~")
                 user_data_dir = os.path.join(user_path, "Library/Application Support/Google/Chrome/Profile 2")
 
@@ -129,7 +130,7 @@ class BrowserFix:
             print("checking browser version on client", current_version_number)
             print("latest version on mac",latest_version['macos'])
 
-            if current_version_number <= latest_version['macos']:
+            if current_version_number >= latest_version['macos']:
                 _LOGGER.info("Chrome browser up-to-date")
                 return True
             return False
