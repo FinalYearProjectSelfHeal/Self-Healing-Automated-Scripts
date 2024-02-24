@@ -141,7 +141,7 @@ class BrowserFix:
         if browser_updated:
             self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared and browser is up to date. You could try a different browser.", False)
         else:
-            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared. You need to update it.", False)
+            self.notification.create_notification(f"Cache & Cookies in {self.browser} have been cleared. You need to update it - please follow the link. http://tinyurl.com/Self-Heal-Chrome", False)
 
 
 if __name__ == "__main__":
