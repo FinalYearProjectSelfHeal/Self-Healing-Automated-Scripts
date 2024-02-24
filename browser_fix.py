@@ -111,7 +111,7 @@ class BrowserFix:
 
             finally:
                 _LOGGER.info("Web Driver has been closed.")
-                self.selenium_webdriver.close()
+               
 
     def check_for_browser_update(self):
         # Web scrape the latest version and compare
