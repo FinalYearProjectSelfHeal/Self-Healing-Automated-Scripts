@@ -125,15 +125,27 @@ def calculate_unused_files(download_path, files):
         unit = "GB"
 
     if wasted_storage > 0:
-        files_deleted = notification.create_notification(f"There are {wasted_storage} {unit} of files in Downloads that haven't been opened in {days} days. Delete unused files.",
-                                                True)
+        filenames = []
+        for file in files_to_delete:
+            filenames.append(os.path.basename(file))
+
+        filename_string = "\n".join(filenames)
+        if len(files_to_delete) > 1:
+            initial_message = f"There are {len(files_to_delete)} files of {wasted_storage} {unit} in the Downloads folder which has not been used in at least {days} days. Delete unused files."
+            file_list_message = f"The following {len(files_to_delete)} files will be deleted\nfrom your Downloads folder:"
+            confirm_message = "Please press Yes to Delete Files or No to Cancel."
+        else:
+            initial_message = f"There is a file of {wasted_storage} {unit} in the Downloads folder which has not been used in at least {days} days. Delete unused file."
+            file_list_message = f"The following file will be deleted from your Downloads folder:"
+            confirm_message = "Please press Yes to Delete File or No to Cancel."
+        files_deleted = notification.create_notification(initial_message,True, file_list_message, filename_string, confirm_message)
         if files_deleted is True:
             delete_files(files_to_delete)
-            notification.create_notification(f"We have cleaned up the files and saved {wasted_storage} {unit} in your Downloads folder!", False)
+            notification.create_notification(f"We have organised the files and saved {wasted_storage} {unit} in your Downloads folder!", False)
         else:
-            notification.create_notification(f"We have cleaned up the files in your Downloads folder!", False)
+            notification.create_notification(f"We have organised the files in your Downloads folder!", False)
     else:
-        notification.create_notification(f"We have cleaned up the files in your Downloads folder!", False)
+        notification.create_notification(f"We have organised the files in your Downloads folder!", False)
 
 
 def convert_path_to_string_path(download_path, file):
