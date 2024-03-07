@@ -30,7 +30,7 @@ class GitHubPermissions(object):
 
         response = requests.put(api + username, headers=headers)
         if response.status_code == 201:
-            notify_text = f"Your GitHub account does NOT have access to {self.repo_name} and a request has been sent."
+            notify_text = f"Your GitHub account does NOT have access to {self.repo_name} and an invitation has been sent to your inbox."
             self.send_notification(notify_text)
             return True
         elif response.status_code == 404:
